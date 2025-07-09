@@ -24,7 +24,7 @@ export default function IntroducePage() {
   const [questions, setQuestions] = useState<Question[]>([
     { id: '1', title: '', content: '' },
   ]);
-  const [showQuestionHeaders, setShowQuestionHeaders] = useState(true);
+  const [showQuestionHeaders, setShowQuestionHeaders] = useState(false);
   const [currentCoverLetterId, setCurrentCoverLetterId] = useState<number | undefined>();
 
   const { ref, inView } = useInView({
@@ -65,8 +65,23 @@ export default function IntroducePage() {
   }, []);
 
   const handleToggleChange = useCallback((checked: boolean) => {
-    setShowQuestionHeaders(checked);
-  }, []);
+    if (checked && questions.length > 1) {
+      // 토글을 켜려고 할 때는 그냥 켜기
+      setShowQuestionHeaders(true);
+    } else if (!checked && questions.length > 1) {
+      // 토글을 끄려고 할 때 (단일 지문으로 변경) 경고
+      const confirmed = window.confirm(
+          '문항별 제목을 숨기면 첫 번째 문항만 남고 나머지 문항들은 삭제됩니다.\n\n정말로 계속하시겠습니까?'
+      );
+
+      if (confirmed) {
+        setQuestions([questions[0]]);
+        setShowQuestionHeaders(false);
+      }
+    } else {
+      setShowQuestionHeaders(checked);
+    }
+  }, [questions]);
 
   const handleLoadCoverLetter = useCallback((coverLetter: CoverLetterResponse) => {
     setTitle(coverLetter.title);
@@ -83,6 +98,9 @@ export default function IntroducePage() {
     }
 
     setQuestions(loadedQuestions);
+
+    // 불러온 자소서의 문항 개수에 따라 토글 상태 설정
+    setShowQuestionHeaders(loadedQuestions.length === 1);  // 단일 문항이면 토글 ON
   }, []);
 
   const resetForm = useCallback(() => {
@@ -127,7 +145,7 @@ export default function IntroducePage() {
                   onAddQuestion={addQuestion}
                   onRemoveQuestion={removeLastQuestion}
                   onScrollToQuestion={scrollToQuestion}
-                  visible={showQuestionHeaders}
+                  visible={!showQuestionHeaders}
               />
 
               <div className={styles.resume}>
@@ -177,6 +195,7 @@ export default function IntroducePage() {
               questions={questions}
               currentCoverLetterId={currentCoverLetterId}
               onLoad={handleLoadCoverLetter}
+              showQuestionHeaders={showQuestionHeaders}
           />
         </div>
       </div>
