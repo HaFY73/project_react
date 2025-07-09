@@ -18,8 +18,6 @@ import {
   Award,
   Code,
   ArrowLeft,
-  Download,
-  Eye,
   Globe,
   Languages,
   Plus,
@@ -124,7 +122,7 @@ export default function ResumeEditor({ resumeId }: ResumeEditorProps) {
   const loadResumeData = async () => {
     try {
       setIsLoading(true)
-      const resume = await resumeApiClient.getResume(parseInt(resumeId!), 1)
+      const resume = await resumeApiClient.getResume(parseInt(resumeId!))
 
       setResumeData(resume)
       setResumeTitle(resume.title)
@@ -263,10 +261,10 @@ export default function ResumeEditor({ resumeId }: ResumeEditorProps) {
       }
 
       if (resumeId) {
-        await resumeApiClient.updateResume(parseInt(resumeId), requestData as ResumeUpdateRequest, 1)
+        await resumeApiClient.updateResume(parseInt(resumeId), requestData as ResumeUpdateRequest)
         alert('이력서가 수정되었습니다.')
       } else {
-        await resumeApiClient.createResume(requestData as ResumeCreateRequest, 1)
+        await resumeApiClient.createResume(requestData as ResumeCreateRequest)
         alert('이력서가 생성되었습니다.')
       }
 

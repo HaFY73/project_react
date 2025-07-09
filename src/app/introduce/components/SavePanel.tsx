@@ -27,6 +27,7 @@ export default function SavePanel({ title, questions, currentCoverLetterId, onLo
   const [isLoading, setIsLoading] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [coverLetters, setCoverLetters] = useState<CoverLetterResponse[]>([]);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   // 사용자 인증 확인
   const checkAuth = () => {
@@ -122,6 +123,38 @@ export default function SavePanel({ title, questions, currentCoverLetterId, onLo
     }
   };
 
+  // 🔥 자기소개서 삭제 기능 추가
+  const handleDeleteCoverLetter = async (id: number, title: string) => {
+    if (!checkAuth()) return;
+
+    const confirmDelete = window.confirm(`"${title}" 자기소개서를 정말 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`);
+    if (!confirmDelete) return;
+
+    try {
+      setDeletingId(id);
+      await apiClient.deleteCoverLetter(id);
+
+      // 목록에서 삭제된 항목 제거
+      setCoverLetters(prev => prev.filter(letter => letter.id !== id));
+
+      alert('자기소개서가 삭제되었습니다.');
+
+      // 현재 편집 중인 자기소개서가 삭제된 경우 초기화
+      if (currentCoverLetterId === id) {
+        window.location.reload();
+      }
+    } catch (error: any) {
+      console.error('Delete failed:', error);
+      if (error.message === '로그인이 필요합니다.') {
+        window.location.href = '/login';
+      } else {
+        alert('삭제에 실패했습니다.');
+      }
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   // PDF 생성용 HTML 컨텐츠 생성 (한글 폰트 지원)
   const createPdfContent = (): HTMLElement => {
     const container = document.createElement('div');
@@ -139,9 +172,7 @@ export default function SavePanel({ title, questions, currentCoverLetterId, onLo
       box-sizing: border-box;
     `;
 
-
     // 내용이 있는 질문들만 필터링
-
     const questionsWithContent = questions.filter(q => q.content.trim());
 
     container.innerHTML = `
@@ -500,9 +531,23 @@ export default function SavePanel({ title, questions, currentCoverLetterId, onLo
                                 작성일: {formatDate(coverLetter.createdAt)} | 수정일: {formatDate(coverLetter.updatedAt)}
                               </div>
                             </div>
-                            <button className={styles.loadBtn} onClick={() => handleLoadCoverLetter(coverLetter.id)}>
-                              불러오기
-                            </button>
+                            <div className={styles.loadActions}>
+                              <button
+                                  className={styles.loadBtn}
+                                  onClick={() => handleLoadCoverLetter(coverLetter.id)}
+                                  disabled={deletingId === coverLetter.id}
+                              >
+                                불러오기
+                              </button>
+                              <button
+                                  className={styles.deleteBtn}
+                                  onClick={() => handleDeleteCoverLetter(coverLetter.id, coverLetter.title)}
+                                  disabled={deletingId === coverLetter.id}
+                                  title="삭제"
+                              >
+                                {deletingId === coverLetter.id ? '삭제 중...' : '×'}
+                              </button>
+                            </div>
                           </li>
                       ))}
                     </ul>
