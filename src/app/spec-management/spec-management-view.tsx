@@ -297,7 +297,7 @@ const ProfileEditPanel = ({ isOpen, onClose, profileData, initialSkills, onSave 
 // 여기서 부터 이력서 pdf 스펙 추출하면 나타내주는 코드 부분임.
 //---------------------------------------------------------------
 const ClassicTemplate = forwardRef<HTMLDivElement, any>((props, ref) => {
-    const { profile, skills, workExperiences, educations, certificates, links, projects, activities } = props.data;
+    const { profile, skills, workExperiences, educations, certificates,  projects, activities } = props.data;
     const ResumeSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
         <section className="mb-6">
             <h3 className="text-lg font-bold text-gray-800 border-b-2 border-blue-600 pb-1 mb-3 uppercase tracking-wide">{title}</h3>

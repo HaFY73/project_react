@@ -3,7 +3,7 @@
 const BASE_URL = 'http://localhost:8080/api';
 
 // =============================================================================
-// 타입 정의 (프론트엔드/백엔드 DTO 포함)
+// 타입 정의 (기존 컴포넌트와 호환)
 // =============================================================================
 
 export interface SpecApiResponse<T> {
@@ -12,18 +12,8 @@ export interface SpecApiResponse<T> {
   message?: string;
 }
 
-// --- 백엔드 DTO 타입 ---
-interface BackendSpecSkillDto {
-  id?: number;
-  name: string;
-  category: string;
-  level: number;
-  displayOrder: number;
-}
-// ... 다른 백엔드 DTO들도 필요시 정의 ...
-
-// --- 프론트엔드 데이터 모델 ---
-export interface SpecProfile {
+// 기존 컴포넌트에서 사용하는 타입들 그대로 사용
+export interface ProfileData {
   name: string;
   email: string;
   phone: string;
@@ -33,14 +23,14 @@ export interface SpecProfile {
   introduction: string;
 }
 
-export interface SpecCareerStats {
+export interface CareerStats {
   experience: string;
   workRecords: string;
   careerGoal: string;
 }
 
-export interface SpecWorkExperience {
-  id?: number;
+export interface WorkExperience {
+  id: string;
   company: string;
   position: string;
   startDate: string;
@@ -48,8 +38,8 @@ export interface SpecWorkExperience {
   description: string;
 }
 
-export interface SpecEducation {
-  id?: number;
+export interface Education {
+  id: string;
   school: string;
   major: string;
   degree: string;
@@ -57,73 +47,68 @@ export interface SpecEducation {
   endDate: string;
 }
 
-export interface SpecCertificate {
-  id?: number;
+export interface Certificate {
+  id: string;
   name: string;
-  issuer: string; // 백엔드 DTO에서는 organization
+  issuer: string;
   acquisitionDate: string;
 }
 
-export interface SpecLink {
-  id?: number;
+export interface Link {
+  id: string;
   title: string;
   url: string;
 }
 
-export interface SpecLanguage {
-  id?: number;
+export interface Language {
+  id: string;
   language: string;
   level: string;
 }
 
-export interface SpecProject {
-  id?: number;
+export interface Project {
+  id: string;
   name: string;
   description: string;
   startDate: string;
   endDate: string;
 }
 
-export interface SpecActivity {
-  id?: number;
+export interface Activity {
+  id: string;
   name: string;
   organization: string;
   startDate: string;
   endDate: string;
 }
 
-export interface SpecMilitary {
-  id?: number;
+export interface Military {
+  id: string;
   serviceType: string;
   militaryBranch: string;
   startDate: string;
   endDate: string;
 }
 
-// --- fetchUserSpec이 최종적으로 반환할 데이터 형태 ---
 export interface UserSpecData {
-  profile: SpecProfile;
-  careerStats: SpecCareerStats;
-  skills: string[]; // 🔥 객체 배열이 아닌 문자열 배열
-  workExperiences: SpecWorkExperience[];
-  educations: SpecEducation[];
-  certificates: SpecCertificate[];
-  links: SpecLink[];
-  languages: SpecLanguage[];
-  projects: SpecProject[];
-  activities: SpecActivity[];
-  military: SpecMilitary[];
+  profile: ProfileData;
+  careerStats: CareerStats;
+  skills: string[];
+  workExperiences: WorkExperience[];
+  educations: Education[];
+  certificates: Certificate[];
+  links: Link[];
+  languages: Language[];
+  projects: Project[];
+  activities: Activity[];
+  military: Military[];
 }
-
 
 // =============================================================================
 // HTTP 클라이언트
 // =============================================================================
 
-const apiCall = async <T>(
-    endpoint: string,
-    options: RequestInit = {}
-): Promise<SpecApiResponse<T>> => {
+const apiCall = async <T>(endpoint: string, options: RequestInit = {}): Promise<SpecApiResponse<T>> => {
   const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
   const headers = new Headers(options.headers);
   headers.set('Content-Type', 'application/json');
@@ -142,42 +127,63 @@ const apiCall = async <T>(
   return responseBody;
 };
 
-
 // =============================================================================
 // 데이터 변환 함수
 // =============================================================================
 
-// 백엔드 데이터를 프론트엔드가 사용하기 좋은 형태로 변환
 const transformBackendData = (backendData: any): UserSpecData => {
   return {
     profile: backendData.profile || { name: "", email: "", phone: "", location: "", careerLevel: "", jobTitle: "", introduction: "" },
     careerStats: backendData.careerStats || { experience: "", workRecords: "", careerGoal: "" },
-    // 🔥 스킬 객체 배열을 이름(문자열) 배열로 변환
-    skills: (backendData.skills || []).map((skill: BackendSpecSkillDto) => skill.name),
-    workExperiences: (backendData.workExperiences || []).map((exp: any) => ({ ...exp, issuer: exp.organization })),
-    educations: backendData.educations || [],
-    certificates: (backendData.certificates || []).map((cert: any) => ({ ...cert, issuer: cert.organization })),
-    links: backendData.links || [],
-    languages: backendData.languages || [],
-    projects: backendData.projects || [],
-    activities: backendData.activities || [],
-    military: backendData.militaries || [],
+    skills: (backendData.skills || []).map((skill: any) => typeof skill === 'string' ? skill : skill.name),
+    workExperiences: (backendData.workExperiences || []).map((exp: any) => ({
+      ...exp,
+      id: exp.id?.toString() || Date.now().toString()
+    })),
+    educations: (backendData.educations || []).map((edu: any) => ({
+      ...edu,
+      id: edu.id?.toString() || Date.now().toString()
+    })),
+    certificates: (backendData.certificates || []).map((cert: any) => ({
+      ...cert,
+      id: cert.id?.toString() || Date.now().toString(),
+      issuer: cert.organization || cert.issuer || ""
+    })),
+    links: (backendData.links || []).map((link: any) => ({
+      ...link,
+      id: link.id?.toString() || Date.now().toString()
+    })),
+    languages: (backendData.languages || []).map((lang: any) => ({
+      ...lang,
+      id: lang.id?.toString() || Date.now().toString(),
+      language: lang.language || lang.name || ""
+    })),
+    projects: (backendData.projects || []).map((proj: any) => ({
+      ...proj,
+      id: proj.id?.toString() || Date.now().toString()
+    })),
+    activities: (backendData.activities || []).map((act: any) => ({
+      ...act,
+      id: act.id?.toString() || Date.now().toString()
+    })),
+    military: (backendData.militaries || []).map((mil: any) => ({
+      ...mil,
+      id: mil.id?.toString() || Date.now().toString()
+    })),
   };
 };
 
-
 // =============================================================================
-// 스펙 API 함수들 (생략 없음)
+// API 함수들
 // =============================================================================
 
 export const fetchUserSpec = async (userId: number): Promise<UserSpecData> => {
   const result = await apiCall<any>(`/spec/${userId}`);
   if (!result.success) throw new Error(result.message || '스펙 데이터를 불러오는데 실패했습니다.');
-  // 🔥 백엔드 데이터를 프론트엔드 형태로 변환 후 반환
   return transformBackendData(result.data);
 };
 
-export const updateProfile = async (userId: number, profileData: SpecProfile): Promise<any> => {
+export const updateProfile = async (userId: number, profileData: ProfileData): Promise<any> => {
   const result = await apiCall(`/spec/${userId}/profile`, {
     method: 'PUT', body: JSON.stringify(profileData),
   });
@@ -193,7 +199,7 @@ export const updateSkills = async (userId: number, skills: string[]): Promise<st
   return result.data;
 };
 
-export const updateWorkExperiences = async (userId: number, experiences: SpecWorkExperience[]): Promise<any> => {
+export const updateWorkExperiences = async (userId: number, experiences: WorkExperience[]): Promise<any> => {
   const result = await apiCall(`/spec/${userId}/careers`, {
     method: 'PUT', body: JSON.stringify(experiences),
   });
@@ -201,7 +207,7 @@ export const updateWorkExperiences = async (userId: number, experiences: SpecWor
   return result.data;
 };
 
-export const updateEducations = async (userId: number, educations: SpecEducation[]): Promise<any> => {
+export const updateEducations = async (userId: number, educations: Education[]): Promise<any> => {
   const result = await apiCall(`/spec/${userId}/educations`, {
     method: 'PUT', body: JSON.stringify(educations),
   });
@@ -209,7 +215,7 @@ export const updateEducations = async (userId: number, educations: SpecEducation
   return result.data;
 };
 
-export const updateCertificates = async (userId: number, certificates: SpecCertificate[]): Promise<any> => {
+export const updateCertificates = async (userId: number, certificates: Certificate[]): Promise<any> => {
   const backendCerts = certificates.map(cert => ({...cert, organization: cert.issuer }));
   const result = await apiCall(`/spec/${userId}/certificates`, {
     method: 'PUT', body: JSON.stringify(backendCerts),
@@ -218,7 +224,7 @@ export const updateCertificates = async (userId: number, certificates: SpecCerti
   return result.data;
 };
 
-export const updateLinks = async (userId: number, links: SpecLink[]): Promise<any> => {
+export const updateLinks = async (userId: number, links: Link[]): Promise<any> => {
   const result = await apiCall(`/spec/${userId}/links`, {
     method: 'PUT', body: JSON.stringify(links),
   });
@@ -226,15 +232,16 @@ export const updateLinks = async (userId: number, links: SpecLink[]): Promise<an
   return result.data;
 };
 
-export const updateLanguages = async (userId: number, languages: SpecLanguage[]): Promise<any> => {
+export const updateLanguages = async (userId: number, languages: Language[]): Promise<any> => {
+  const backendLanguages = languages.map(lang => ({...lang, name: lang.language }));
   const result = await apiCall(`/spec/${userId}/languages`, {
-    method: 'PUT', body: JSON.stringify(languages),
+    method: 'PUT', body: JSON.stringify(backendLanguages),
   });
   if (!result.success) throw new Error(result.message || '어학 정보 업데이트에 실패했습니다.');
   return result.data;
 };
 
-export const updateProjects = async (userId: number, projects: SpecProject[]): Promise<any> => {
+export const updateProjects = async (userId: number, projects: Project[]): Promise<any> => {
   const result = await apiCall(`/spec/${userId}/projects`, {
     method: 'PUT', body: JSON.stringify(projects),
   });
@@ -242,7 +249,7 @@ export const updateProjects = async (userId: number, projects: SpecProject[]): P
   return result.data;
 };
 
-export const updateActivities = async (userId: number, activities: SpecActivity[]): Promise<any> => {
+export const updateActivities = async (userId: number, activities: Activity[]): Promise<any> => {
   const result = await apiCall(`/spec/${userId}/activities`, {
     method: 'PUT', body: JSON.stringify(activities),
   });
@@ -250,7 +257,7 @@ export const updateActivities = async (userId: number, activities: SpecActivity[
   return result.data;
 };
 
-export const updateMilitary = async (userId: number, military: SpecMilitary[]): Promise<any> => {
+export const updateMilitary = async (userId: number, military: Military[]): Promise<any> => {
   const result = await apiCall(`/spec/${userId}/militaries`, {
     method: 'PUT', body: JSON.stringify(military),
   });
@@ -258,7 +265,7 @@ export const updateMilitary = async (userId: number, military: SpecMilitary[]): 
   return result.data;
 };
 
-export const updateCareerStats = async (userId: number, stats: SpecCareerStats): Promise<any> => {
+export const updateCareerStats = async (userId: number, stats: CareerStats): Promise<any> => {
   const result = await apiCall(`/spec/${userId}/career-stats`, {
     method: 'PUT', body: JSON.stringify(stats),
   });
