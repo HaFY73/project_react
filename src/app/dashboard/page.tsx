@@ -1363,8 +1363,26 @@ export default function CareerLogHomePage() {
         setProfileData(newData);
     };
 
-    const handleConditionsSave = (newData: ConditionsData) => {
-        setConditionsData(newData);
+    const handleConditionsSave = async (conditionsData: ConditionsData) => {
+        try {
+            setIsLoading(true);
+
+            // 🔥 jobs가 비어있을 때 UserProfile의 jobTitle을 기본값으로 설정
+            if ((!conditionsData.jobs || conditionsData.jobs.length === 0) &&
+                profileData?.jobTitle &&
+                profileData.jobTitle.trim() !== '') {
+                conditionsData.jobs = [profileData.jobTitle];
+            }
+
+            const updated = await api.updateConditions(conditionsData.userId, conditionsData);
+            setConditionsData(updated);
+            setIsConditionsEditOpen(false);
+        } catch (error) {
+            console.error('Failed to update conditions:', error);
+            alert('희망 조건 수정에 실패했습니다.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleApplicationSave = (newData: ApplicationData[]) => {
@@ -1463,6 +1481,7 @@ export default function CareerLogHomePage() {
                         onClose={() => setIsConditionsEditOpen(false)}
                         conditionsData={conditionsData}
                         onSave={handleConditionsSave}
+                        userProfile={profileData} // 🔥 이 부분 추가
                     />
                 )}
                 {isApplicationStatusOpen && userId && (
