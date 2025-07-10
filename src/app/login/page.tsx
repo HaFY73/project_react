@@ -12,7 +12,6 @@ export default function LoginPage() {
     // ✅ 초기값에서 바로 쿼리 파라미터 반영
     const [isFlipped, setIsFlipped] = useState(signupParam === "true")
 
-    const [isPasswordValid] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
@@ -25,8 +24,6 @@ export default function LoginPage() {
         email: "",
         interests: [] as string[],
     })
-
-    const isPasswordMatch = formData.password === formData.confirmPassword
 
     function handleInputChange(e: ChangeEvent<HTMLInputElement>): void {
         const { name, value } = e.target
@@ -73,8 +70,6 @@ export default function LoginPage() {
                             formData={formData}
                             onChange={handleInputChange}
                             onInterestChange={handleInterestChange}
-                            isPasswordValid={isPasswordValid}
-                            isPasswordMatch={isPasswordMatch}
                             showPassword={showPassword}
                             showConfirmPassword={showConfirmPassword}
                             setShowPassword={setShowPassword}

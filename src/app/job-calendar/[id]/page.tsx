@@ -60,7 +60,13 @@ export default function UserJobCalendarPage() {
     return (
         <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
             <GlobalSidebar />
-            <main className="flex-1 p-6 pl-44 overflow-x-hidden">
+            {/*
+                변경 사항:
+                - pl-44 → pl-72: 사이드바와의 왼쪽 여백을 늘림 (176px → 288px)
+                - pr-8: 오른쪽 여백 추가 (32px)
+                - px-8: 좌우 여백을 동일하게 주는 경우 사용 가능
+            */}
+            <main className="flex-1 p-6 pl-72 pr-8 overflow-x-hidden">
                 <JobCalendarView />
             </main>
         </div>
