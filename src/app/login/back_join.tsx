@@ -65,10 +65,11 @@ export default function SignupForm({
     }>({ status: 'none', message: '' });
 
     const [emailCheck, setEmailCheck] = useState<{
-        status: 'none' | 'checking' | 'available' | 'duplicate' | 'error';
+        status: 'none' | 'checking' | 'available' | 'duplicate' | 'error' | 'sent' | 'verified';
         message: string;
     }>({ status: 'none', message: '' });
 
+    const [emailVerificationCode, setEmailVerificationCode] = useState('');
     const [isSignupLoading, setIsSignupLoading] = useState(false);
 
     // 비밀번호 유효성 검사
@@ -114,8 +115,8 @@ export default function SignupForm({
         }
     };
 
-    // 🆕 이메일 중복확인 함수
-    const handleEmailCheck = async () => {
+    // 🆕 이메일 인증번호 발송 함수 (중복확인 포함)
+    const handleEmailVerificationSend = async () => {
         if (!formData.email || !formData.email.includes('@')) {
             setEmailCheck({
                 status: 'error',
@@ -124,9 +125,10 @@ export default function SignupForm({
             return;
         }
 
-        setEmailCheck({ status: 'checking', message: '확인 중...' });
+        setEmailCheck({ status: 'checking', message: '이메일 확인 중...' });
 
         try {
+            // 1단계: 중복확인
             const isDuplicate = await authApi.checkEmailDuplicate(formData.email);
 
             if (isDuplicate) {
@@ -134,17 +136,42 @@ export default function SignupForm({
                     status: 'duplicate',
                     message: '이미 가입된 이메일입니다.'
                 });
-            } else {
-                setEmailCheck({
-                    status: 'available',
-                    message: '사용 가능한 이메일입니다.'
-                });
+                return;
             }
+
+            // 2단계: 중복되지 않으면 인증번호 발송
+            const result = await authApi.sendEmailVerificationCode(formData.email);
+
+            setEmailCheck({
+                status: 'sent',
+                message: result
+            });
+
         } catch (error) {
             setEmailCheck({
                 status: 'error',
-                message: error instanceof Error ? error.message : '확인 중 오류가 발생했습니다.'
+                message: error instanceof Error ? error.message : '오류가 발생했습니다.'
             });
+        }
+    };
+
+    // 🆕 이메일 인증번호 확인 함수
+    const handleEmailVerificationCheck = async () => {
+        if (!emailVerificationCode || emailVerificationCode.length !== 6) {
+            alert('인증번호 6자리를 입력해주세요.');
+            return;
+        }
+
+        try {
+            const result = await authApi.verifyEmailCode(formData.email, emailVerificationCode);
+
+            setEmailCheck({
+                status: 'verified',
+                message: result
+            });
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : '인증 확인 중 오류가 발생했습니다.';
+            alert(errorMessage);
         }
     };
 
@@ -168,8 +195,8 @@ export default function SignupForm({
             return;
         }
 
-        if (emailCheck.status !== 'available') {
-            alert('이메일 중복확인을 완료해주세요.');
+        if (emailCheck.status !== 'verified') {
+            alert('이메일 인증을 완료해주세요.');
             return;
         }
 
@@ -195,7 +222,7 @@ export default function SignupForm({
         !formData.email ||
         !formData.name ||
         userIdCheck.status !== 'available' ||
-        emailCheck.status !== 'available' ||
+        emailCheck.status !== 'verified' ||
         isSignupLoading;
 
     return (
@@ -339,7 +366,7 @@ export default function SignupForm({
                 />
             </div>
 
-            {/* 🆕 이메일 (중복확인 기능 추가) */}
+            {/* 🆕 이메일 (인증번호 발송 시 자동 중복확인) */}
             <div className="mb-4">
                 <label className="block text-sm font-medium text-slate-700 mb-2">이메일</label>
                 <div className="flex gap-2">
@@ -353,24 +380,50 @@ export default function SignupForm({
                     />
                     <button
                         type="button"
-                        onClick={handleEmailCheck}
+                        onClick={handleEmailVerificationSend}
                         disabled={emailCheck.status === 'checking' || !formData.email}
                         className="bg-slate-200 hover:bg-slate-300 disabled:opacity-50 px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1"
                     >
                         {emailCheck.status === 'checking' && <Loader2 className="w-3 h-3 animate-spin" />}
-                        중복확인
+                        인증번호
                     </button>
                 </div>
-                {/* 🆕 중복확인 결과 표시 */}
+                {/* 🆕 중복확인 및 인증 결과 표시 */}
                 {emailCheck.message && (
                     <div className={`mt-1 text-xs flex items-center gap-1 ${
-                        emailCheck.status === 'available' ? 'text-green-600' :
+                        emailCheck.status === 'available' || emailCheck.status === 'sent' || emailCheck.status === 'verified' ? 'text-green-600' :
                             emailCheck.status === 'duplicate' ? 'text-red-600' : 'text-gray-600'
                     }`}>
-                        {emailCheck.status === 'available' && <Check className="h-3 w-3" />}
+                        {(emailCheck.status === 'available' || emailCheck.status === 'sent' || emailCheck.status === 'verified') && <Check className="h-3 w-3" />}
                         {emailCheck.status === 'duplicate' && <X className="h-3 w-3" />}
                         {emailCheck.status === 'checking' && <Loader2 className="h-3 w-3 animate-spin" />}
                         <span>{emailCheck.message}</span>
+                    </div>
+                )}
+                {/* 🆕 인증번호 입력 필드 (인증번호 발송 후 표시) */}
+                {emailCheck.status === 'sent' && (
+                    <div className="mt-2">
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                value={emailVerificationCode}
+                                onChange={(e) => setEmailVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                placeholder="인증번호 6자리"
+                                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white/50 focus:outline-none focus:ring-2 focus:ring-[#356ae4]"
+                                maxLength={6}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleEmailVerificationCheck}
+                                disabled={emailVerificationCode.length !== 6}
+                                className="bg-[#356ae4] hover:bg-[#2857c8] text-white px-3 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
+                            >
+                                확인
+                            </button>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">
+                            인증번호가 전송되었습니다. 이메일을 확인해주세요.
+                        </p>
                     </div>
                 )}
             </div>

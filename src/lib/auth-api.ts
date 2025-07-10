@@ -61,6 +61,60 @@ export const authApi = {
     },
 
     /**
+     * 🆕 이메일 인증 코드 발송 (중복확인 포함)
+     */
+    sendEmailVerificationCode: async (email: string): Promise<string> => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/send-email-code`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                credentials: 'include', // 🔥 쿠키 포함하여 세션 유지
+                body: `email=${encodeURIComponent(email)}`,
+            });
+
+            const result = await response.text();
+
+            if (!response.ok) {
+                throw new Error(result || '이메일 인증 코드 발송에 실패했습니다.');
+            }
+
+            return result;
+        } catch (error) {
+            console.error('이메일 인증 코드 발송 실패:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * 🆕 이메일 인증 코드 검증
+     */
+    verifyEmailCode: async (email: string, code: string): Promise<string> => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/verify-email-code`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                credentials: 'include', // 🔥 쿠키 포함하여 세션 유지
+                body: `email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`,
+            });
+
+            const result = await response.text();
+
+            if (!response.ok) {
+                throw new Error(result || '이메일 인증에 실패했습니다.');
+            }
+
+            return result;
+        } catch (error) {
+            console.error('이메일 인증 검증 실패:', error);
+            throw error;
+        }
+    },
+
+    /**
      * 회원가입
      */
     signup: async (signupData: any) => {
@@ -70,6 +124,7 @@ export const authApi = {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include', // 🔥 세션 유지를 위해 쿠키 포함
                 body: JSON.stringify(signupData),
             });
 
