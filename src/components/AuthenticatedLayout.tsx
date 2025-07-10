@@ -23,6 +23,7 @@ interface AuthenticatedLayoutProps {
 export default function AuthenticatedLayout({ children, pathname }: AuthenticatedLayoutProps) {
     const router = useRouter()
     const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const [userRole, setUserRole] = useState<string | null>(null)
     const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
     const protectedPaths = [
@@ -37,20 +38,27 @@ export default function AuthenticatedLayout({ children, pathname }: Authenticate
         '/settings'
     ]
 
+    // 🔥 관리자 전용 경로
+    const adminPaths = ['/admin']
+
     const isProtectedPath = protectedPaths.some(path => pathname.startsWith(path))
+    const isAdminPath = adminPaths.some(path => pathname.startsWith(path))
 
     // 🔥 인증 상태 확인 함수
     const checkAuthStatus = () => {
         try {
             const userId = localStorage.getItem('userId') || getCookie('userId')
             const userName = localStorage.getItem('userName') || getCookie('userName')
+            const role = localStorage.getItem('userRole') || getCookie('userRole')
 
             console.log('🔍 Auth check:', {
                 userId: userId ? '***' + userId.slice(-3) : null,
                 userName,
+                role,
                 pathname
             })
 
+            setUserRole(role)
             return !!(userId && userId.trim() && userId !== 'undefined')
         } catch (error) {
             console.error('❌ Auth check error:', error)
@@ -81,10 +89,19 @@ export default function AuthenticatedLayout({ children, pathname }: Authenticate
         console.log('🔐 Auth layout check:', {
             pathname,
             isAuthenticated: authStatus,
-            isProtectedPath
+            userRole,
+            isProtectedPath,
+            isAdminPath
         })
 
-        // 🔥 보호된 경로인데 인증되지 않은 경우 즉시 리다이렉트
+        // 🔥 관리자 페이지 접근 권한 체크
+        if (isAdminPath && (!authStatus || userRole !== 'ADMIN')) {
+            console.log('❌ Admin page access denied - redirecting to login')
+            router.replace('/login?reason=admin_required')
+            return
+        }
+
+        // 🔥 보호된 경로인데 인증되지 않은 경우
         if (isProtectedPath && !authStatus) {
             console.log('❌ Protected path without auth - redirecting to login')
             router.replace('/login?reason=auth_required&redirect=' + encodeURIComponent(pathname))
@@ -93,11 +110,16 @@ export default function AuthenticatedLayout({ children, pathname }: Authenticate
 
         // 🔥 인증된 사용자가 로그인/회원가입 페이지에 접근하는 경우
         if (authStatus && (pathname === '/login' || pathname === '/signup')) {
-            console.log('🔄 Authenticated user on auth page - redirecting to dashboard')
-            router.replace('/dashboard')
+            console.log('🔄 Authenticated user on auth page - redirecting')
+            // 역할에 따른 리다이렉트
+            if (userRole === 'ADMIN') {
+                router.replace('/admin')
+            } else {
+                router.replace('/dashboard')
+            }
             return
         }
-    }, [pathname, router, isProtectedPath])
+    }, [pathname, router, isProtectedPath, isAdminPath, userRole])
 
     // 🔥 인증 확인 중
     if (isCheckingAuth) {
@@ -108,6 +130,22 @@ export default function AuthenticatedLayout({ children, pathname }: Authenticate
                         <div className="text-center">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#356ae4] mx-auto mb-4"></div>
                             <p className="text-gray-600">인증 확인 중...</p>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        )
+    }
+
+    // 🔥 관리자 페이지인데 권한이 없는 경우
+    if (isAdminPath && (!isAuthenticated || userRole !== 'ADMIN')) {
+        return (
+            <div className="app-layout">
+                <main className="main-content-full">
+                    <div className="flex items-center justify-center min-h-screen">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#356ae4] mx-auto mb-4"></div>
+                            <p className="text-gray-600">관리자 로그인 페이지로 이동 중...</p>
                         </div>
                     </div>
                 </main>
@@ -131,8 +169,9 @@ export default function AuthenticatedLayout({ children, pathname }: Authenticate
         )
     }
 
-    // 🔥 정상적인 렌더링 - 인증된 사용자만 사이드바 표시
-    const showSidebar = isAuthenticated
+    // 🔥 정상적인 렌더링
+    // 관리자 페이지는 사이드바 없이, 일반 페이지는 인증된 사용자만 사이드바 표시
+    const showSidebar = isAuthenticated && !isAdminPath
 
     return (
         <div className="app-layout">

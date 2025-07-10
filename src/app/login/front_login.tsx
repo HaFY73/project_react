@@ -25,7 +25,7 @@ export default function LoginForm({ onFlip }: LoginFormProps) {
         document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`
     }
 
-    // 🔥 수정된 handleLogin 함수 - 에러 처리 개선
+    // 🔥 수정된 handleLogin 함수 - role 기반 리다이렉트
     async function handleLogin() {
         if (isLoading) return
         setIsLoading(true)
@@ -40,83 +40,56 @@ export default function LoginForm({ onFlip }: LoginFormProps) {
             if (res.ok) {
                 const userData = await res.json()
 
-                // 🔥 백엔드 응답 전체를 로깅해서 토큰 필드명 확인
-                console.log('🔥 백엔드 로그인 응답 전체:', userData);
-                console.log('🔥 응답 키들:', Object.keys(userData));
+                console.log('🔥 백엔드 로그인 응답:', userData);
 
-                // 🔥 모든 가능한 토큰 필드명 확인
-                const possibleTokenFields = ['token', 'accessToken', 'jwt', 'authToken', 'access_token', 'jwtToken'];
-                const foundTokenField = possibleTokenFields.find(field => userData[field]);
-
-                if (foundTokenField) {
-                    const token = userData[foundTokenField];
-                    console.log(`🔑 토큰 발견! 필드명: ${foundTokenField}, 토큰: ${token.substring(0, 20)}...`);
-
-                    // 여러 키로 저장해서 호환성 확보
+                // 🔥 토큰 저장
+                const token = userData.token;
+                if (token) {
                     localStorage.setItem('authToken', token);
                     localStorage.setItem('accessToken', token);
-                    localStorage.setItem('token', token);
-                    localStorage.setItem('jwt', token);
-
                     setCookie('authToken', token);
-                    setCookie('accessToken', token);
-                    setCookie('token', token);
-
                     console.log('✅ 토큰 저장 완료');
-                } else {
-                    console.error('❌ 토큰을 찾을 수 없습니다! 응답:', userData);
-                    // 응답에서 토큰으로 보이는 필드들 찾기
-                    Object.keys(userData).forEach(key => {
-                        const value = userData[key];
-                        if (typeof value === 'string' && value.length > 50) {
-                            console.log(`🤔 토큰일 가능성 있는 필드: ${key} = ${value.substring(0, 20)}...`);
-                        }
-                    });
                 }
 
-                // 사용자 정보 저장
+                // 🔥 사용자 정보 저장
                 localStorage.setItem('userId', userData.id.toString())
                 localStorage.setItem('userName', userData.name)
+                localStorage.setItem('userRole', userData.role) // 🔥 역할 정보 저장
 
-                // 쿠키에도 저장
                 setCookie('userId', userData.id.toString())
                 setCookie('userName', userData.name)
+                setCookie('userRole', userData.role) // 🔥 역할 정보 쿠키 저장
 
                 console.log('✅ 사용자 정보 저장 완료:', {
                     userId: userData.id,
                     userName: userData.name,
-                    hasToken: !!foundTokenField
+                    userRole: userData.role
                 });
 
-                alert(`${userData.name}님, 환영합니다!`)
-                router.push('/dashboard')
+                // 🔥 역할 기반 리다이렉트
+                if (userData.role === 'ADMIN') {
+                    alert(`관리자 ${userData.name}님, 환영합니다!`)
+                    router.push('/admin')
+                } else {
+                    alert(`${userData.name}님, 환영합니다!`)
+                    router.push('/dashboard')
+                }
 
             } else {
-                // 🔥 에러 처리 개선 - 안전한 응답 파싱
+                // 에러 처리
                 try {
-                    const errorText = await res.text(); // JSON 대신 text로 먼저 받기
-                    console.log('❌ 로그인 실패 응답 원문:', errorText);
-                    console.log('❌ HTTP 상태 코드:', res.status);
+                    const errorText = await res.text();
+                    console.log('❌ 로그인 실패 응답:', errorText);
 
                     let errorMessage = "로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.";
 
-                    // JSON 파싱 시도
                     if (errorText && errorText.trim().length > 0) {
                         try {
                             const errorData = JSON.parse(errorText);
-                            console.log('📄 파싱된 에러 데이터:', errorData);
-
-                            // 다양한 에러 응답 형태 처리
                             if (errorData.message) {
                                 errorMessage = errorData.message;
-                            } else if (errorData.data && errorData.data.message) {
-                                errorMessage = errorData.data.message;
-                            } else if (errorData.error) {
-                                errorMessage = errorData.error;
                             }
                         } catch (jsonParseError) {
-                            console.log('JSON 파싱 실패, 원문 확인:', jsonParseError);
-                            // JSON이 아닌 경우 텍스트 응답을 그대로 사용
                             if (errorText.length > 0 && errorText.length < 200) {
                                 errorMessage = errorText;
                             }
@@ -212,6 +185,13 @@ export default function LoginForm({ onFlip }: LoginFormProps) {
                 <label htmlFor="remember" className="ml-2 text-sm text-slate-700">
                     아이디 저장
                 </label>
+            </div>
+
+            {/* 🔥 관리자 로그인 안내 */}
+            <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-xs text-blue-700 text-center">
+                    💡 관리자 로그인: admin / admin123!
+                </p>
             </div>
 
             {/* 로그인 버튼 */}
