@@ -207,10 +207,25 @@ export default function LoginForm({ onFlip }: LoginFormProps) {
 
             {/* 소셜 로그인 */}
             <div className="social-login-row flex justify-center gap-4 mb-6">
-                <SocialButton src="/naver.png" alt="Naver" />
-                <SocialButton src="/kakao.png" alt="Kakao" />
-                <SocialButton src="/google.png" alt="Google" />
+                <SocialButton
+                    src="/naver.png"
+                    alt="Naver"
+                    onClick={() => alert("현재는 구글 로그인만 사용 가능합니다.\n네이버, 카카오는 추후 지원 예정입니다.")}
+                />
+                <SocialButton
+                    src="/kakao.png"
+                    alt="Kakao"
+                    onClick={() => alert("현재는 구글 로그인만 사용 가능합니다.\n네이버, 카카오는 추후 지원 예정입니다.")}
+                />
+                <SocialButton
+                    src="/google.png"
+                    alt="Google"
+                    onClick={() => {
+                        window.location.href = "http://localhost:8080/oauth2/authorization/google" // 예시 URL
+                    }}
+                />
             </div>
+
 
             {/* 회원가입 이동 */}
             <div className="text-center text-sm">
@@ -226,12 +241,21 @@ export default function LoginForm({ onFlip }: LoginFormProps) {
     )
 }
 
-function SocialButton({ src, alt }: { src: string; alt: string }) {
+function SocialButton({
+                          src,
+                          alt,
+                          onClick
+                      }: {
+    src: string
+    alt: string
+    onClick?: () => void
+}) {
     return (
         <motion.button
             className="p-3 rounded-full bg-sky-50 hover:bg-slate-100 transition-colors border border-slate-200 flex items-center justify-center"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
+            onClick={onClick}
         >
             <div className="aspect-square relative overflow-hidden rounded">
                 <Image src={src} alt={alt} width={32} height={32} className="rounded-full" />
