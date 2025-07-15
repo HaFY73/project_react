@@ -48,7 +48,7 @@ export default function GlobalSidebar() {
       icon: Calendar,
       href: userId ? `/job-calendar/${userId}` : '/login'
     },
-    { id: 'community', label: '커뮤니티', icon: Users, href: '/community' },
+    { id: 'community', label: '커뮤니티', icon: Users, href: '/community/feed' },
   ];
 
   useEffect(() => {
@@ -178,7 +178,11 @@ export default function GlobalSidebar() {
         <nav className={styles.nav}>
           <ul className={styles.menuList}>
             {menuItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive =
+                  item.id === 'community'
+                      ? pathname.startsWith('/community') // ✅ 커뮤니티 관련 모든 페이지에서 활성
+                      : pathname === item.href;
+
               const Icon = item.icon;
               return (
                   <li key={item.id} className={styles.menuItem}>
