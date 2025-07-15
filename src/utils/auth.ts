@@ -92,3 +92,12 @@ export const performLogout = () => {
         window.history.replaceState(null, '', '/login');
     }
 };
+
+//커뮤니티 로그인 세션
+export const getCurrentUserId = (): number | null => {
+    if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("userId");
+        return stored ? parseInt(stored, 10) : null;
+    }
+    return null;
+};

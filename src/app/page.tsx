@@ -58,9 +58,9 @@ export default function Home() {
         >
             {/* 배경 장식 요소들 */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#356ae4]/5 via-purple-500/5 to-pink-500/5" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#6366f1]/5 via-purple-500/5 to-pink-500/5" />
                 <motion.div
-                    className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-[#356ae4]/20 to-purple-500/20 rounded-full blur-3xl"
+                    className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-[#6366f1]/20 to-purple-500/20 rounded-full blur-3xl"
                     animate={{ x: [0, 100, 0], y: [0, -50, 0], scale: [1, 1.2, 1] }}
                     transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
                 />
@@ -70,7 +70,7 @@ export default function Home() {
                     transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
                 />
                 <motion.div
-                    className="absolute top-1/2 left-1/2 w-96 h-96 bg-gradient-to-br from-[#356ae4]/10 to-indigo-500/10 rounded-full blur-3xl"
+                    className="absolute top-1/2 left-1/2 w-96 h-96 bg-gradient-to-br from-[#6366f1]/10 to-indigo-500/10 rounded-full blur-3xl"
                     animate={{ x: [0, 150, -150, 0], y: [0, -100, 100, 0], scale: [1, 1.1, 0.9, 1] }}
                     transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
                 />
@@ -93,13 +93,13 @@ export default function Home() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.1 }}
                     >
-                        <a href="#features" className="text-slate-600 hover:text-[#356ae4] transition-colors">기능</a>
-                        <a href="#vision" className="text-slate-600 hover:text-[#356ae4] transition-colors">비전</a>
-                        <a href="#about" className="text-slate-600 hover:text-[#356ae4] transition-colors">소개</a>
+                        <a href="#features" className="text-slate-600 hover:text-[#6366f1] transition-colors">기능</a>
+                        <a href="#vision" className="text-slate-600 hover:text-[#6366f1] transition-colors">비전</a>
+                        <a href="#about" className="text-slate-600 hover:text-[#6366f1] transition-colors">소개</a>
                     </motion.nav>
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5 }}>
                         <Link href="/login">
-                            <button className="inline-flex items-center px-4 py-2 text-slate-600 hover:text-[#356ae4] hover:bg-blue-50 transition-all rounded-md">
+                            <button className="inline-flex items-center px-4 py-2 text-slate-600 hover:text-[#6366f1] hover:bg-blue-50 transition-all rounded-md">
                                 <User className="h-5 w-5 mr-2" />
                                 로그인
                             </button>
@@ -125,9 +125,9 @@ export default function Home() {
                             animate={{ y: [0, -30, 0], rotate: [0, 180, 360], scale: [1, 1.2, 1] }}
                             transition={{ duration: 15 + i * 2, repeat: Infinity, ease: "easeInOut", delay: i * 0.5 }}
                         >
-                            {i % 3 === 0 && <div className="w-4 h-4 bg-gradient-to-br from-[#356ae4]/30 to-purple-500/30 rounded-full" />}
+                            {i % 3 === 0 && <div className="w-4 h-4 bg-gradient-to-br from-[#6366f1]/30 to-purple-500/30 rounded-full" />}
                             {i % 3 === 1 && <div className="w-6 h-6 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rotate-45" />}
-                            {i % 3 === 2 && <div className="w-3 h-8 bg-gradient-to-b from-[#356ae4]/25 to-indigo-500/25 rounded-full" />}
+                            {i % 3 === 2 && <div className="w-3 h-8 bg-gradient-to-b from-[#6366f1]/25 to-indigo-500/25 rounded-full" />}
                         </motion.div>
                     ))}
                 </div>
@@ -138,10 +138,10 @@ export default function Home() {
                             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
                                 <h1 className="text-4xl md:text-6xl font-bold text-slate-800 mb-6 leading-tight">
                                     이력서 관리의 <br />
-                                    <span className="text-[#356ae4] relative">
+                                    <span className="text-[#6366f1] relative">
                                         새로운 시작
                                         <motion.span
-                                            className="absolute bottom-0 left-0 w-full h-1 bg-[#356ae4]"
+                                            className="absolute bottom-0 left-0 w-full h-1 bg-[#6366f1]"
                                             initial={{ width: 0 }}
                                             animate={{ width: "100%" }}
                                             transition={{ duration: 1, delay: 1 }}
@@ -163,7 +163,7 @@ export default function Home() {
                                 transition={{ duration: 0.8, delay: 0.6 }}
                             >
                                 <button
-                                    className="bg-[#356ae4] hover:bg-[#2857c8] text-white px-8 py-4 rounded-full text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
+                                    className="bg-[#6366f1] hover:bg-[#8b5cf6] text-white px-8 py-4 rounded-full text-lg shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all"
                                     onClick={handleGetStarted}
                                 >
                                     시작하기
@@ -228,7 +228,7 @@ export default function Home() {
 
             {/* 기능 소개 섹션 - 4가지 기능 */}
             <section id="features" className="py-20 bg-white/70 backdrop-blur-sm relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-[#356ae4]/5 to-purple-500/5" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#6366f1]/5 to-purple-500/5" />
                 <div className="container mx-auto px-4 relative z-10">
                     <motion.div
                         className="text-center mb-16"
@@ -282,7 +282,7 @@ export default function Home() {
                                 onMouseLeave={() => setActiveFeature(null)}
                             >
                                 <div className="flex-shrink-0 h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <FileText className="h-6 w-6 text-[#356ae4]" />
+                                    <FileText className="h-6 w-6 text-[#6366f1]" />
                                 </div>
                                 <div>
                                     <h4 className="text-xl font-semibold text-slate-800 mb-2">맞춤형 이력서</h4>
@@ -391,7 +391,7 @@ export default function Home() {
 
             {/* 소개 섹션 */}
             <section id="about" className="py-20 bg-white/60 backdrop-blur-sm relative">
-                <div className="absolute inset-0 bg-gradient-to-l from-[#356ae4]/5 to-indigo-500/5" />
+                <div className="absolute inset-0 bg-gradient-to-l from-[#6366f1]/5 to-indigo-500/5" />
                 <div className="container mx-auto px-4 relative z-10">
                     <div className="grid md:grid-cols-2 gap-12 items-center">
                         <motion.div
@@ -415,36 +415,25 @@ export default function Home() {
                         </motion.div>
 
                         <motion.div
-                            className="relative h-[400px] rounded-xl overflow-hidden shadow-xl"
-                            initial={{ opacity: 0, x: 50 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.8 }}
-                            viewport={{ once: true }}
+                        className="relative h-[400px] rounded-xl overflow-hidden shadow-xl"
+                        initial={{ opacity: 0, x: 50 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.8 }}
+                        viewport={{ once: false }}
                         >
-                            <div className="w-full h-full bg-gradient-to-br from-indigo-100 to-purple-200 flex items-center justify-center">
-                                <div className="text-center text-indigo-800">
-                                    <User className="h-24 w-24 mx-auto mb-4" />
-                                    <p className="text-xl font-medium">팀 소개</p>
-                                </div>
+                        <div className="w-full h-full bg-gradient-to-br flex items-center justify-center">
+                            <div className="text-center">
+                                <img src={"/intro.png"} alt={"introduce image"}/>
                             </div>
-
-                            <motion.div
-                                className="absolute inset-0 bg-gradient-to-t from-[#356ae4]/80 to-transparent"
-                                initial={{ opacity: 0 }}
-                                whileInView={{ opacity: 1 }}
-                                transition={{ duration: 1, delay: 0.5 }}
-                                viewport={{ once: true }}
-                            />
+                        </div>
 
                             <motion.div
                                 className="absolute bottom-6 left-6 right-6 text-white"
                                 initial={{ y: 20, opacity: 0 }}
                                 whileInView={{ y: 0, opacity: 1 }}
                                 transition={{ duration: 0.8, delay: 0.8 }}
-                                viewport={{ once: true }}
+                                viewport={{ once: false }}
                             >
-                                <h3 className="text-2xl font-bold mb-2">함께 성장하는 팀</h3>
-                                <p>취업 준비생들의 성공을 위해 끊임없이 혁신하고 있습니다.</p>
                             </motion.div>
                         </motion.div>
                     </div>

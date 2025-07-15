@@ -8,7 +8,7 @@ import {
     User, Edit, Plus, X, ChevronDown,
     Target, CheckCircle,
     AlertCircle, Star, Edit2, Loader2,
-    PieChart as PieChartIcon, TrendingUp, Briefcase, Check, ArrowRight,
+    PieChart as PieChartIcon, TrendingUp, Briefcase, ArrowRight,
     Award, Camera, Link, Languages, GraduationCap, Trash2,
     Building, ExternalLink, RefreshCw, Shield
 } from "lucide-react"
@@ -1246,11 +1246,17 @@ export default function CareerLogHomePage() {
     const [conditionsData, setConditionsData] = useState<ConditionsData | null>(null);
     const [applicationData, setApplicationData] = useState<ApplicationData[]>([]);
     const [stats, setStats] = useState<StatsData | null>(null);
+
     const [loading, setLoading] = useState(true);
 
     const [isProfileEditOpen, setIsProfileEditOpen] = useState(false)
     const [isConditionsEditOpen, setIsConditionsEditOpen] = useState(false)
     const [isApplicationStatusOpen, setIsApplicationStatusOpen] = useState(false);
+
+// 🔥 추가: 각각의 저장 작업을 위한 로딩 상태
+    const [isProfileLoading, setIsProfileLoading] = useState(false);
+    const [isConditionsLoading, setIsConditionsLoading] = useState(false);
+    const [isApplicationsLoading, setIsApplicationsLoading] = useState(false);
 
     // 인증 체크
     useEffect(() => {
@@ -1359,13 +1365,24 @@ export default function CareerLogHomePage() {
         }
     }, [userId, isAuthenticated, authLoading, userName]);
 
-    const handleProfileSave = (newData: ProfileData) => {
-        setProfileData(newData);
+    const handleProfileSave = async (newData: ProfileData) => {
+        try {
+            setIsProfileLoading(true);
+            setProfileData(newData);
+
+            // 성공 알림
+            alert('프로필이 성공적으로 저장되었습니다!');
+        } catch (error) {
+            console.error('프로필 저장 실패:', error);
+            alert('프로필 저장에 실패했습니다. 다시 시도해주세요.');
+        } finally {
+            setIsProfileLoading(false);
+        }
     };
 
     const handleConditionsSave = async (conditionsData: ConditionsData) => {
         try {
-            setIsLoading(true);
+            setIsConditionsLoading(true); // 🔥 변경
 
             // 🔥 jobs가 비어있을 때 UserProfile의 jobTitle을 기본값으로 설정
             if ((!conditionsData.jobs || conditionsData.jobs.length === 0) &&
@@ -1374,14 +1391,17 @@ export default function CareerLogHomePage() {
                 conditionsData.jobs = [profileData.jobTitle];
             }
 
-            const updated = await api.updateConditions(conditionsData.userId, conditionsData);
+            const updated = await api.updateConditions(Number(conditionsData.userId), conditionsData);
             setConditionsData(updated);
             setIsConditionsEditOpen(false);
+
+            // 🔥 성공 알림 추가
+            alert('희망 조건이 성공적으로 저장되었습니다!');
         } catch (error) {
-            console.error('Failed to update conditions:', error);
-            alert('희망 조건 수정에 실패했습니다.');
+            console.error('희망 조건 저장 실패:', error);
+            alert('희망 조건 저장에 실패했습니다. 다시 시도해주세요.');
         } finally {
-            setIsLoading(false);
+            setIsConditionsLoading(false); // 🔥 변경
         }
     };
 

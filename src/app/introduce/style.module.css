@@ -1,7 +1,21 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.pageHeaderInline {
+  margin-top: 0;
+}
+
+.pageTitleSection h1,
+.pageTitleSection p {
+  margin: 0;
+}
+
 .pageContainer {
   min-height: 100vh;
   background: #f8fafc;
-  margin-left: 280px;
+  padding-left: 220px;
   transition: background-color 0.3s ease;
 }
 
@@ -11,8 +25,8 @@
 
 /* 페이지 제목 섹션 */
 .pageHeaderInline {
-  padding: 24px 32px 16px 32px;
-  margin-bottom: 0;
+  max-width: 72rem;
+  margin: 0 auto 1rem auto;
 }
 
 .pageTitleSection {
@@ -21,7 +35,7 @@
 }
 
 .pageTitle {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #1e293b;
   margin: 0 0 6px 0;
@@ -29,6 +43,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  padding-top: 2rem;
 }
 
 :global(.dark) .pageTitle {
@@ -75,9 +90,9 @@
 
 .mainLayout {
   display: flex;
-  padding-top: 0;
+  padding: 0.2rem;
   max-width: 1200px;
-  gap: 24px;
+  gap: 10px;
   width: 100%;
   justify-content: flex-start;
   align-items: flex-start;
@@ -157,11 +172,11 @@
   flex: 1;
   max-width: 920px;
   min-width: 650px;
-  padding: 40px;
-  background: white;
+  padding: 2rem;
   border-radius: 16px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
   transition: all 0.3s ease;
+  background: #ffffff;
   border: 1px solid #e2e8f0;
   position: relative;
 }
@@ -177,7 +192,7 @@
   font-size: 1.25rem;
   font-weight: 600;
   padding: 18px 24px;
-  margin-bottom: 28px;
+  margin-bottom: 25px;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
   transition: all 0.2s ease;
@@ -204,11 +219,11 @@
 
 /* 토글 컨테이너 */
 .toggleContainer {
-  margin-bottom: 28px;
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 18px 24px;
+  gap: 10px;
+  padding: 12px 24px;
   background: #f8fafc;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
@@ -298,7 +313,7 @@
 .questionBlock {
   border-left: 3px solid #6366f1;
   padding-left: 24px;
-  margin-bottom: 32px;
+  margin-bottom: 20px;
   position: relative;
   transition: all 0.3s ease;
   scroll-margin-top: 80px;
@@ -362,7 +377,7 @@
   box-sizing: border-box; /* 박스 크기 계산 방식을 명확히 지정 */
   width: 100%;
   height: 400px; /* 높이를 조금 더 여유있게 수정 */
-  padding: 20px 24px;
+  padding: 10px 24px;
   font-size: 0.875rem;
   line-height: 1.6;
   border: 1px solid #e2e8f0;
@@ -769,7 +784,7 @@
 }
 
 /* 반응형 디자인 */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .pageContainer {
     margin-left: 0;
   }
@@ -809,7 +824,7 @@
   }
 
   .sidebar {
-    width: 100%;
+    width: 30%;
     height: auto;
     flex-direction: row;
     position: static;
@@ -828,13 +843,13 @@
   }
 
   .resume {
-    padding: 24px;
+    padding: 10px;
     max-width: 100%;
     min-width: auto;
   }
 
   .titleInput {
-    font-size: 18px;
+    font-size: 16px;
     padding: 14px 16px;
   }
 
@@ -856,10 +871,10 @@
   .saveSidebar {
     position: static;
     margin-top: 20px;
-    width: 100%;
+    width: 30%;
     max-width: 100%;
     margin-left: auto;
-    margin-right: auto;
+    margin-right: 0px;
   }
 
   .modalContent {
@@ -1029,4 +1044,65 @@
     align-items: stretch;
     gap: 12px;
   }
+}
+
+/* 전체 디자인 적용 */
+.mainLayout {
+  max-width: 72rem; /* ≈ max-w-6xl */
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  gap: 2rem;
+}
+
+.pageHeaderInline {
+  max-width: 72rem;
+  margin: 0 auto 2rem auto;
+  padding: 0 2rem;
+}
+
+.pageTitleSection h1 {
+  font-size: 1rem; /* ≈ text-2xl */
+  font-weight: 200;
+  color: #1f2937; /* text-gray-800 */
+}
+
+:global(.dark) .pageTitleSection h1 {
+  color: #f9fafb; /* text-gray-100 */
+}
+
+.pageTitleSection p {
+  font-size: 1rem; /* ≈ text-base */
+  color: #6b7280; /* text-gray-600 */
+  margin-top: 0.5rem;
+}
+
+:global(.dark) .pageTitleSection p {
+  color: #d1d5db; /* text-gray-300 */
+}
+
+.resume {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem; /* rounded-2xl */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 2rem;
+}
+
+:global(.dark) .resume {
+  background: #111827;
+  border-color: #374151;
+}
+
+.resume {
+  background: linear-gradient(to right, #f8fafc, #f1f5f9);
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.resume:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
 }
